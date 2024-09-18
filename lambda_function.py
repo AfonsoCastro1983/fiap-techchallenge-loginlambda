@@ -45,7 +45,7 @@ def handle_postlogin(event):
         username = parsed_data.get('username', [''])[0]
         password = parsed_data.get('password', [''])[0]
 
-        if username = 'anonimo':
+        if username == 'anonimo':
             username = 'anonimo@anonimo.com.br'
             senha = 'D9@0NAzn17W)'
 
