@@ -1,4 +1,4 @@
-import urllib.parse
+import base64
 import boto3
 import json
 from botocore.exceptions import ClientError
@@ -17,37 +17,47 @@ def lambda_handler(event, context):
     if http_method == 'GET':
         if path == '/cadastro/login':
             return handle_login(event)
-        elif path == '/logged':
-            return handle_logged(event)
-        elif path == '/register':
+        elif path == '/cadastro/register':
             return handle_register(event)
         else:
             return {'statusCode': 404, 'body': 'Not Found'}
     elif http_method == 'POST':
-        if path == '/cadastro/login':
-            return handle_postlogin(event)
-        elif path == '/register':
+        elif path == '/cadastro/logged':
+            return handle_logged(event)
+        elif path == '/cadastro/register':
             return handle_registration(event)
         else:
             return {'statusCode': 404, 'body': 'Not Found'}
     
     return {'statusCode': 405, 'body': event}
 
+def load_html(name):
+    with open(name, 'r', encoding='utf-8') as arquivo:
+        conteudo = arquivo.read()
+
+    with open("background-lanchonete.jpeg", "rb") as image_file:
+        base64_string = base64.b64encode(image_file.read()).decode('utf-8')
+
+    conteudo = conteudo.replace('{{ BACKGROUND }}', 'data:image/png;base64,'+base64_string)
+    
+    return conteudo
 
 def handle_login(event):
-    with open('login.html', 'r', encoding='utf-8') as arquivo:
-        conteudo = arquivo.read()    
+    conteudo = load_html('login.html')
     return {'statusCode': 200, 'headers': {'Content-type': 'text/html'},'body': conteudo}
 
-def handle_postlogin(event):
-    try:
-        parsed_data = urllib.parse.parse_qs(event.get('body'))
-        username = parsed_data.get('username', [''])[0]
-        password = parsed_data.get('password', [''])[0]
+def handle_logged(event):
+    # Lógica para retornar a página de retorno do token
+    conteudo = load_html('logged.html')
 
-        if username = 'anonimo':
+    try:
+        auth_pass = json.loads(event.get('body'))
+        username = auth_pass['username']
+        senha = auth_pass['password']
+
+        if username == 'anonimo':
             username = 'anonimo@anonimo.com.br'
-            senha = 'D9@0NAzn17W)'
+            senha = '0jvFuo/n#06R'
 
         client = boto3.client('cognito-idp')
 
@@ -56,32 +66,24 @@ def handle_postlogin(event):
             AuthFlow='USER_PASSWORD_AUTH',
             AuthParameters={
                 'USERNAME': username,
-                'PASSWORD': password
+                'PASSWORD': senha
             }
         )
 
-        print(response)
-
         resposta_logged = {nome: username, token: response['AuthenticationResult']['AccessToken']}
 
-        return {'statusCode': 301, 'headers': {'Location': 'logged'}, 'body': json.dumps(resposta_logged)}
+        conteudo = conteudo.replace('{{ Fulano }}', username)
+        conteudo = conteudo.replace('{{ Token }}',resposta_logged)
+
+        return {'statusCode': 200, 'headers': {'Content-type': 'text/html'}, 'body': conteudo}
     except:
-        return {'statusCode': 301, 'headers': {'Location': 'login'}}
-
-def handle_logged(event):
-    # Lógica para retornar a página de retorno do token
-    dados = json.loads(event.get('body'))
-    with open('logged.html', 'r', encoding='utf-8') as arquivo:
-        conteudo = arquivo.read()
-
-    conteudo = conteudo.replace('{{ Fulano }}', dados.nome)
-    conteudo = conteudo.replace('{{ Token }}',dados.token)
-    return {'statusCode': 200, 'headers': {'Content-type': 'text/html'}, 'body': conteudo}
+        conteudo = conteudo.replace('{{ Fulano }}', 'Não Identificado')
+        conteudo = conteudo.replace('{{ Token }}','')
+        return {'statusCode': 200, 'headers': {'Content-type': 'text/html'}, 'body': conteudo}
 
 def handle_register(event):
     # Lógica para retornar a página de registro
-    with open('register.html', 'r', encoding='utf-8') as arquivo:
-        conteudo = arquivo.read()
+    conteudo = load_html('register.html')
     
     return {'statusCode': 200, 'headers': {'Content-type': 'text/html'},'body': conteudo}
 

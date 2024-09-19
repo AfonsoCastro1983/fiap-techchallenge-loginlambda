@@ -8,7 +8,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-image: url('background-lanchonete.jpeg');
+            background-image: url('{{ BACKGROUND }}');
             background-size: cover;
             background-position: top left;
             background-attachment: fixed;
@@ -92,7 +92,7 @@
         function redirecionarPost(user, pass) {
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = 'login';
+            form.action = 'logged';
 
             const usr = document.createElement('input');
             usr.type = 'hidden';

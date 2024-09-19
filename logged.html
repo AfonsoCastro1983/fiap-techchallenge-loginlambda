@@ -8,7 +8,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-image: url('background-lanchonete.jpeg');
+            background-image: url('{{ BACKGROUND }}');
             background-size: cover;
             background-position: top left;
             background-attachment: fixed;
@@ -80,6 +80,7 @@
             <br><br>
             <button onclick="copiarTexto()">Copiar Texto</button>
         </div>
+        <button onclick="return_to_login()">Voltar para o login</button>
     </div>
 
     <script>
@@ -90,6 +91,10 @@
             document.execCommand("copy");
 
             alert("Texto copiado: " + texto.value);
+        }
+
+        function return_to_login() {
+            window.location.href = 'login';
         }
     </script>
 </body>
