@@ -52,10 +52,6 @@ def handle_logged(event):
     conteudo = load_html('logged.html')
 
     try:
-        auth_pass = json.loads(event.get('body'))
-        username = auth_pass['username']
-        senha = auth_pass['password']
-
         parsed_data = urllib.parse.parse_qs(event.get('body'))
         username = parsed_data.get('username', [''])[0]
         senha = parsed_data.get('password', [''])[0]
@@ -75,23 +71,27 @@ def handle_logged(event):
             }
         )
 
-        resposta_logged = {nome: username, token: response['AuthenticationResult']['AccessToken']}
+        response_user = client.get_user(
+            AccessToken=response['AuthenticationResult']['AccessToken']
+        )
 
-        conteudo = conteudo.replace('{{ Fulano }}', username)
-        conteudo = conteudo.replace('{{ Token }}',resposta_logged)
+        nome_usuario = next((item['Value'] for item in response_user['UserAttributes'] if item['Name'] == 'name'), None)
+
+        conteudo = conteudo.replace('{{ Fulano }}', nome_usuario)
+        conteudo = conteudo.replace('{{ Token }}',response['AuthenticationResult']['AccessToken'])
 
         return {'statusCode': 200, 'headers': {'Content-type': 'text/html'}, 'body': conteudo}
     except:
         conteudo = conteudo.replace('{{ Fulano }}', 'Não Identificado')
-        conteudo = conteudo.replace('{{ Token }}','')
+        conteudo = conteudo.replace('{{ Token }}','Verifique usuário e senha e tente novamente')
         return {'statusCode': 200, 'headers': {'Content-type': 'text/html'}, 'body': conteudo}
 
 def handle_register(event):
     # Lógica para retornar a página de registro
-    conteudo = load_html('register.html')
-    
+    conteudo = load_html('register.html')    
     return {'statusCode': 200, 'headers': {'Content-type': 'text/html'},'body': conteudo}
 
 def handle_registration(event):
     # Lógica para processar registro de usuário
+    print(event.get('body'))
     return {'statusCode': 201, 'body': event}
