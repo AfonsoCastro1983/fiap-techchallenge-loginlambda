@@ -156,10 +156,9 @@
                 return;
             }
 
-            const response = await fetch(apiUrl, {
+            const response = await fetch('register', {
                 method: 'POST',
                 body: JSON.stringify({
-                    action: 'register',
                     email: email,
                     nome: nome,
                     password: password,
@@ -171,11 +170,11 @@
             });
 
             const data = await response.json();
-            if (response.ok) {
+            if (data.cadastro) {
                 alert('Usuário registrado com sucesso. Faça login agora.');
                 window.location.href = 'login';
             } else {
-                alert(`Erro: ${data}`);
+                alert(`Erro: ${data.error}`);
             }
         }
 
