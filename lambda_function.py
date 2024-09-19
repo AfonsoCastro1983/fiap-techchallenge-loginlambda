@@ -1,3 +1,4 @@
+import urllib.parse
 import base64
 import boto3
 import json
@@ -22,7 +23,7 @@ def lambda_handler(event, context):
         else:
             return {'statusCode': 404, 'body': 'Not Found'}
     elif http_method == 'POST':
-        elif path == '/cadastro/logged':
+        if path == '/cadastro/logged':
             return handle_logged(event)
         elif path == '/cadastro/register':
             return handle_registration(event)
@@ -54,6 +55,10 @@ def handle_logged(event):
         auth_pass = json.loads(event.get('body'))
         username = auth_pass['username']
         senha = auth_pass['password']
+
+        parsed_data = urllib.parse.parse_qs(event.get('body'))
+        username = parsed_data.get('username', [''])[0]
+        senha = parsed_data.get('password', [''])[0]
 
         if username == 'anonimo':
             username = 'anonimo@anonimo.com.br'
