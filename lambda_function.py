@@ -93,5 +93,33 @@ def handle_register(event):
 
 def handle_registration(event):
     # Lógica para processar registro de usuário
-    print(event.get('body'))
-    return {'statusCode': 201, 'body': event}
+    payload = json.loads(event.get('body'))
+    client = boto3.client('cognito-idp')
+    try:
+        response = client.sign_up(
+            ClientId=CLIENT_ID,
+            Username=payload.get('email'),
+            Password=payload.get('password'),
+            UserAttributes=[
+                {
+                    'Name': 'email',
+                    'Value': payload.get('email')
+                },
+                {
+                    'Name': 'name',
+                    'Value': payload.get('nome')
+                },
+                {
+                    'Name': 'custom:CPF',
+                    'Value': payload.get('cpf')
+                }
+            ]
+        )
+
+        print(response)
+
+        return {'statusCode': 201, 'headers': {'Content-type': 'application/json'},'body': '{"cadastro": True}'}
+    except client.exceptions.UsernameExistsException:
+        return {'statusCode': 500, 'headers': {'Content-type': 'application/json'},'body': '{"cadastro": False, "error": "Usuário já existe"}'}
+    except Exception as e:
+        return {'statusCode': 500, 'headers': {'Content-type': 'application/json'},'body': '{"cadastro": False, "error": '+str(e)+'}'}
