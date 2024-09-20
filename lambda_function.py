@@ -118,8 +118,13 @@ def handle_registration(event):
 
         print(response)
 
-        return {'statusCode': 201, 'headers': {'Content-type': 'application/json'},'body': '{"cadastro": True}'}
+        client.admin_confirm_sign_up(
+            UserPoolId=USER_POOL_ID,
+            Username=payload.get('email')
+        )
+
+        return {'statusCode': 201, 'headers': {'Content-type': 'application/json'},'body': '{"cadastro": true}'}
     except client.exceptions.UsernameExistsException:
-        return {'statusCode': 500, 'headers': {'Content-type': 'application/json'},'body': '{"cadastro": False, "error": "Usuário já existe"}'}
+        return {'statusCode': 500, 'headers': {'Content-type': 'application/json'},'body': '{"cadastro": true, "error": "Usuário já existe"}'}
     except Exception as e:
-        return {'statusCode': 500, 'headers': {'Content-type': 'application/json'},'body': '{"cadastro": False, "error": '+str(e)+'}'}
+        return {'statusCode': 500, 'headers': {'Content-type': 'application/json'},'body': '{"cadastro": true, "error": '+str(e)+'}'}
