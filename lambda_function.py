@@ -2,10 +2,11 @@ import urllib.parse
 import base64
 import boto3
 import json
+import time
 from botocore.exceptions import ClientError
 
-USER_POOL_ID = 'us-east-2_ZrPiVhqeJ'
-CLIENT_ID = '4jai8du53pd4hk8r0vigksoimf'
+USER_POOL_ID = 'us-east-2_Uvk12Ahpe'
+CLIENT_ID = '1o0vfq0udn75k92psplrko7oji'
 
 def lambda_handler(event, context):
     print('evento')
@@ -98,7 +99,7 @@ def handle_registration(event):
     try:
         response = client.sign_up(
             ClientId=CLIENT_ID,
-            Username=payload.get('email'),
+            Username=payload.get('cpf'),
             Password=payload.get('password'),
             UserAttributes=[
                 {
@@ -108,20 +109,20 @@ def handle_registration(event):
                 {
                     'Name': 'name',
                     'Value': payload.get('nome')
-                },
-                {
-                    'Name': 'custom:CPF',
-                    'Value': payload.get('cpf')
                 }
             ]
         )
 
         print(response)
 
-        client.admin_confirm_sign_up(
+        time.sleep(2)
+
+        resp_confirm = client.admin_confirm_sign_up(
             UserPoolId=USER_POOL_ID,
-            Username=payload.get('email')
+            Username=payload.get('cpf')
         )
+
+        print(resp_confirm)
 
         return {'statusCode': 201, 'headers': {'Content-type': 'application/json'},'body': '{"cadastro": true}'}
     except client.exceptions.UsernameExistsException:
