@@ -3,6 +3,7 @@ import base64
 import boto3
 import json
 import time
+import requests
 from botocore.exceptions import ClientError
 
 USER_POOL_ID = 'us-east-2_Uvk12Ahpe'
@@ -113,6 +114,7 @@ def handle_registration(event):
             ]
         )
 
+        print('Response Cognito')
         print(response)
 
         time.sleep(2)
@@ -122,7 +124,21 @@ def handle_registration(event):
             Username=payload.get('cpf')
         )
 
+        print('Confirmação Cognito')
         print(resp_confirm)
+
+        #Cadastrar na aplicação da lanchonete
+        payload = {
+            "nome": payload.get('nome'),
+            "idcognito": response.get('UserSub'),
+            "email": payload.get('email'),
+            "cpf": payload.get('cpf')
+        }
+
+        resp_lanchonete = requests.post("https://a41aaa344669446e2bb8c6ae993d48fb-698349288.us-east-2.elb.amazonaws.com/cliente", json=payload, headers={'Content-Type': 'application/json'})
+
+        print('Criação usuário lanchonete')
+        print(resp_lanchonete)
 
         return {'statusCode': 201, 'headers': {'Content-type': 'application/json'},'body': '{"cadastro": true}'}
     except client.exceptions.UsernameExistsException:
