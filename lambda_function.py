@@ -80,7 +80,7 @@ def handle_logged(event):
         nome_usuario = next((item['Value'] for item in response_user['UserAttributes'] if item['Name'] == 'name'), None)
 
         conteudo = conteudo.replace('{{ Fulano }}', nome_usuario)
-        conteudo = conteudo.replace('{{ Token }}',response['AuthenticationResult']['AccessToken'])
+        conteudo = conteudo.replace('{{ Token }}',response['AuthenticationResult']['IdToken'])
 
         return {'statusCode': 200, 'headers': {'Content-type': 'text/html'}, 'body': conteudo}
     except:
