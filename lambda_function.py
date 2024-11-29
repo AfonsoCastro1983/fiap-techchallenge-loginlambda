@@ -135,7 +135,7 @@ def handle_registration(event):
             "cpf": payload.get('cpf')
         }
 
-        resp_lanchonete = requests.post("http://a6614520a11704e48a4c16e3d10c749c-851906114.us-east-2.elb.amazonaws.com/cliente", json=payload, headers={'Content-Type': 'application/json'})
+        resp_lanchonete = requests.post("http://ms-clientes-ecs-lb-1238328976.us-east-2.elb.amazonaws.com/cliente", json=payload, headers={'Content-Type': 'application/json'})
 
         print('Criação usuário lanchonete')
         print(resp_lanchonete)
