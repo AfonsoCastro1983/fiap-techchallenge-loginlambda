@@ -2,7 +2,6 @@ import urllib.parse
 import base64
 import boto3
 import json
-import time
 import requests
 from botocore.exceptions import ClientError
 
@@ -117,7 +116,8 @@ def handle_registration(event):
         print('Response Cognito')
         print(response)
 
-        time.sleep(2)
+        for int i in range(2000):
+            continue
 
         resp_confirm = client.admin_confirm_sign_up(
             UserPoolId=USER_POOL_ID,
